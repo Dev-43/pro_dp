@@ -1,37 +1,27 @@
-node_modules 
+# --- Dependencies ---
+node_modules/
+backend/venv/
+backend/.venv/
 
-venv
+# --- Python Compiled Files ---
 __pycache__/
-*.pyc
-.DS_Store
+*.py[cod]
+
+# --- Environment Variables ---
 .env
-.idea/
-.vscode/
+.env.local
+
+# --- Build Outputs ---
 dist/
 build/
-*.log
-*.sqlite3
-coverage
-*.egg-info/
-*.iml
-*.class
-out/
-*.jar
-*.war
-*.log
+.dist/
 
-*.swp
-*.swo
-*.bak
-*.tmp
-*.old
-*.orig
-*.rej
-*.lock
-*.pid
-*.seed
-*.gz
-*.zip
-*.tar
-*.rar
-*.7z
+# --- Temporary Data (Keep the folder, ignore the files) ---
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/outputs/*
+!backend/outputs/.gitkeep
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
