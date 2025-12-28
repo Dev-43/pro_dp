@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { saveAs } from "file-saver"; // make sure file-saver is installed: pnpm add file-saver
+import { saveAs } from "file-saver"; 
+import { uploadCSV } from "../services/api"; // Import the correct API function
+
+// Define the Production Backend URL for Images
+const API_BASE_URL = "https://pro-dp-1.onrender.com";
 
 // Metric Card Component
 const MetricCard = ({ title, value, textColor }: any) => (
@@ -13,7 +17,8 @@ const MetricCard = ({ title, value, textColor }: any) => (
 const GraphCard = ({ title, src }: any) => (
   <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 hover:shadow-xl transition-shadow duration-300">
     <h3 className="text-lg font-semibold mb-3 text-gray-800">{title}</h3>
-    <img src={src} alt={title} className="rounded-md w-full h-auto" />
+    {/* Use the Production URL for images */}
+    <img src={`${API_BASE_URL}${src}`} alt={title} className="rounded-md w-full h-auto" />
   </div>
 );
 
@@ -27,19 +32,16 @@ function Dashboard() {
     if (e.target.files) setFile(e.target.files[0]);
   };
 
-  const uploadCSV = async () => {
+  const handleUpload = async () => {
     if (!file) return alert("Please select a CSV file.");
     setStatus("Uploading and analyzing...");
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/predict", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
+      // USE THE IMPORTED FUNCTION (It uses the correct Render URL)
+      const data = await uploadCSV(file);
+
       if (data.error) return setStatus("Error: " + data.error);
+      
       setMetrics({
         total: data.total_transactions,
         anomalies: data.anomaly_count,
@@ -47,6 +49,7 @@ function Dashboard() {
       });
       setGraphs(data.graphs);
       setStatus("Analysis complete!");
+
     } catch (err) {
       console.error(err);
       setStatus("Error processing file.");
@@ -81,7 +84,7 @@ function Dashboard() {
           className="mb-4 block w-full text-gray-700"
         />
         <button
-          onClick={uploadCSV}
+          onClick={handleUpload}
           className="w-full bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow transition mb-3"
         >
           Analyze Transactions
@@ -109,11 +112,11 @@ function Dashboard() {
       {/* Graphs Section */}
       {graphs && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-12">
-          <GraphCard title="Risk Score Distribution" src={`http://127.0.0.1:5000${graphs.risk_distribution}`} />
-          <GraphCard title="Amount vs Risk" src={`http://127.0.0.1:5000${graphs.amount_vs_risk}`} />
-          <GraphCard title="Anomaly Breakdown" src={`http://127.0.0.1:5000${graphs.anomaly_pie}`} />
-          <GraphCard title="Risk Level Count" src={`http://127.0.0.1:5000${graphs.risk_bar}`} />
-          <GraphCard title="Transaction Frequency Over Time" src={`http://127.0.0.1:5000${graphs.time_series}`} />
+          <GraphCard title="Risk Score Distribution" src={graphs.risk_distribution} />
+          <GraphCard title="Amount vs Risk" src={graphs.amount_vs_risk} />
+          <GraphCard title="Anomaly Breakdown" src={graphs.anomaly_pie} />
+          <GraphCard title="Risk Level Count" src={graphs.risk_bar} />
+          <GraphCard title="Transaction Frequency Over Time" src={graphs.time_series} />
         </section>
       )}
 
