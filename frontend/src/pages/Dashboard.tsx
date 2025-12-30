@@ -155,7 +155,6 @@ function Dashboard() {
         <div className="container flex-center" style={{ justifyContent: "space-between" }}>
           <div className="flex-center" style={{ gap: "0.75rem", cursor: "pointer" }} onClick={() => setView("upload")}>
             <motion.div 
-               whileHover={{ rotate: 180 }} transition={{ duration: 0.6 }}
                style={{ 
                  width: "42px", height: "42px", 
                  background: "linear-gradient(135deg, var(--accent-color), var(--accent-hover))", 
