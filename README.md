@@ -1,128 +1,156 @@
-# 🛡️ Fraud & Anomaly Detection Dashboard
+# 🛡️ Fake Transaction Detector
 
 ![Frontend: React + Vite](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-blue)
 ![Backend: Flask](https://img.shields.io/badge/Backend-Flask%20%2B%20Python-green)
-![Model: Isolation Forest](https://img.shields.io/badge/Model-Isolation%20Forest-orange)
+![Style: Fintech Premium](https://img.shields.io/badge/Style-Fintech%20Premium-purple)
 
-A concise full‑stack example for detecting anomalies in financial transaction data. Upload a CSV and the backend analyzes transactions (Isolation Forest + feature engineering), returns summary metrics and generated charts for visualization.
+A professional-grade financial anomaly detection system featuring a premium "Fintech" UI, robust backend processing, and seamless dark/light mode integration. Upload a transaction CSV to instantly detect potential fraud, visualized through dynamic, theme-aware charts.
 
 ---
 
-## 📋 Table of contents
-- [Live demo](#-live-demo)
+## 📋 Table of Contents
+- [Live Demo](#-live-demo)
 - [Features](#-features)
-- [Quick start](#-quick-start)
-- [API / Usage](#-api--usage)
-- [Model](#-model)
-- [Project structure](#-project-structure)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Quick Start](#-quick-start)
+- [API Usage](#-api-usage)
+- [Deployment](#-deployment)
+- [Project Structure](#-project-structure)
 
 ---
 
-## 🚀 Live demo
-- **Frontend (Dashboard):** https://pro-dp.vercel.app/ *(update with your deployment)*
-- **Backend (API):** https://pro-dp-1.onrender.com *(update with your deployment)*
+## 🚀 Live Demo
+- **Frontend (Vercel):** [Click Here to View Dashboard](https://pro-dp.vercel.app/)
+- **Backend (Render):** [Click Here to View API Status](https://pro-dp-1.onrender.com)
 
 ---
 
 ## 🌟 Features
-- CSV upload (form `file` field).
-- Unsupervised anomaly detection (Isolation Forest ensemble available in `backend/model/`).
-- Auto-generated visualizations saved to `backend/outputs/`.
-- Simple JSON response with summary metrics and links to charts.
+
+### 🎨 Premium UI/UX
+- **Glassmorphism Design**: Modern, translucent aesthetics with frosted glass effects.
+- **Dual Theme Support**: 
+    - ☀️ **Light Mode**: Vibrant Electric Blue & Soft Cloud White.
+    - 🌙 **Dark Mode**: Cyber Black & Neon Green (Eye-friendly optimized).
+- **Smooth Animations**: Staggered entrance animations, hover physics, and simulated functional loading states.
+- **Responsive**: Fully distinct views for "Upload" and "Dashboard" states.
+
+### 🧠 Intelligent Backend
+- **Fraud Detection**: Analyzes transaction patterns to flag high-risk anomalies.
+- **Dual-Theme Graph Generation**: Automatically generates two sets of charts (Light & Dark) for every analysis to ensure perfect visual integration with the frontend.
+- **Crash-Proof**: Configured with `matplotlib` non-interactive backend (`Agg`) to run reliably on headless servers.
 
 ---
 
-## ✨ Quick start
-Prerequisites: Python 3.10+, Node 18+, Git.
+## ✨ Quick Start
 
-1) Backend
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Git
 
+### 1️⃣ Backend Setup
 ```bash
 cd backend
 python -m venv venv
+
 # Windows
 venv\Scripts\activate
 # macOS/Linux
 source venv/bin/activate
+
 pip install -r requirements.txt
+
+# Development Run
 python app.py
+
+# Production Run (Simulated)
+gunicorn app:app
 ```
+*Server runs on http://127.0.0.1:5000*
 
-The Flask server will run on http://127.0.0.1:5000.
-
-2) Frontend
-
+### 2️⃣ Frontend Setup
 ```bash
 cd frontend
 npm install
+
+# Create local env file if needed
+echo "VITE_API_BASE_URL=http://127.0.0.1:5000" > .env.development
+
 npm run dev
 ```
-
-Open http://localhost:5173 and upload a CSV to analyze.
+*App runs on http://localhost:5173*
 
 ---
 
-## 🔌 API / Usage
-- GET / -> health/status
-- POST /predict -> accepts a multipart/form-data request with key `file` (CSV)
-- GET /outputs/<filename> -> serves generated chart images
+## 🔌 API Usage
 
-Example: upload `transactions.csv` using curl
+**Endpoint:** `POST /predict`
+- **Body:** `multipart/form-data` with key `file` (CSV)
 
-```bash
-curl -X POST "http://127.0.0.1:5000/predict" \
-  -F "file=@transactions.csv"
-```
-
-Example response (trimmed):
-
+**Response Example:**
 ```json
 {
   "total_transactions": 1000,
-  "anomaly_count": 120,
-  "high_risk_percent": 12.0,
+  "anomaly_count": 12,
+  "high_risk_percent": 1.2,
   "graphs": {
-    "risk_distribution": "/outputs/risk_distribution.png",
-    "time_series": "/outputs/time_series.png"
+    "risk_distribution": {
+      "light": "/outputs/risk_distribution_light.png",
+      "dark": "/outputs/risk_distribution_dark.png"
+    },
+    "amount_vs_risk": {
+      "light": "/outputs/amount_vs_risk_light.png",
+      "dark": "/outputs/amount_vs_risk_dark.png"
+    },
+    ...
   }
 }
 ```
 
-Notes:
-- The API saves uploaded files to `backend/uploads/` and outputs charts to `backend/outputs/`.
-- Update `frontend/src/services/api.ts` to point to the correct backend URL for local/dev workflows.
+---
+
+## ☁️ Deployment Guides
+
+### **Backend (Render)**
+1. Connect your repo to Render.
+2. Select **Web Service**.
+3. Set **Build Command**: `pip install -r requirements.txt`
+4. Set **Start Command**: `gunicorn app:app`
+5. Deploy!
+
+### **Frontend (Vercel)**
+1. Connect your repo to Vercel.
+2. Import the `frontend` directory.
+3. Set **Environment Variable**: 
+   - Name: `VITE_API_BASE_URL`
+   - Value: `https://your-backend-url.onrender.com`
+4. Deploy!
 
 ---
 
-## 🧠 Model
-The repository contains a robust detector implementation at `backend/model/anomaly_model.py` (class `EliteFraudDetector`) that:
-- Engineers dozens of behavioral and temporal features
-- Trains an ensemble (IsolationForest, DBSCAN, EllipticEnvelope)
-- Produces risk scores and explanations for flagged transactions
+## 🧩 Project Structure
 
-The lightweight endpoint (`/predict`) currently demonstrates the end-to-end flow; you can integrate `EliteFraudDetector` into the Flask route for production-grade inference.
-
----
-
-## 🧩 Project structure
 ```
-backend/        # Flask app, model, uploads/outputs
-frontend/       # React + Vite dashboard
-README.md
+├── backend/
+│   ├── app.py             # Main Flask server (with Dual Graph logic)
+│   ├── Procfile           # Production entry point
+│   ├── requirements.txt   # Python dependencies
+│   ├── uploads/           # Temp storage for uploads
+│   └── outputs/           # Generated graph schematics
+│
+├── test_file/         # Sample CSVs for testing (Use these to test the app)
+└── frontend/
+    ├── src/
+    │   ├── components/    # UI Components (UploadCSV, MetricsCard, GraphCard)
+    │   ├── pages/         # Dashboard (Main View logic)
+    │   └── index.css      # Styles (Themes, Animations, Tailwind)
+    │
+    ├── .env.development   # Local API configuration
+    └── package.json       # Frontend dependencies
 ```
 
 ---
 
-## Contributing
-Contributions welcome — please open issues or PRs. Add tests, documentation, or improvements to model explainability.
+## 📄 License
 
----
-
-## License
-MIT — see `LICENSE` for details.
-
----
-
-If you want, I can also add a short example CSV, a sample `curl` script, or a screenshot of the dashboard. Let me know which you'd prefer.
+This project is licensed under the **MIT License** - see the LICENSE file for details.
