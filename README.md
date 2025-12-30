@@ -112,7 +112,16 @@ npm run dev
       "dark": "/outputs/amount_vs_risk_dark.png"
     },
     ...
-  }
+  },
+  "flagged_transactions": [
+    {
+      "transaction_id": "TXN-0",
+      "amount": 15000.00,
+      "risk_score": 98,
+      "reason": "Unusually High Amount | Rapid Velocity"
+    },
+    ...
+  ]
 }
 ```
 

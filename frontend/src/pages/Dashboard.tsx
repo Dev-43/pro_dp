@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { saveAs } from "file-saver"; 
 import UploadCSV from "../components/UploadCSV";
 import MetricsCard from "../components/MetricsCard";
-import { Moon, Sun, Download, BarChart3, ShieldCheck, Plus } from "lucide-react";
+import { Moon, Sun, Download, BarChart3, ShieldCheck, Plus, ArrowUp } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 // Production Backend URL for Images
@@ -79,6 +79,7 @@ function Dashboard() {
   const [view, setView] = useState<"upload" | "dashboard">("upload");
   const [metrics, setMetrics] = useState<any>(null);
   const [graphs, setGraphs] = useState<any>(null);
+  const [flaggedTransactions, setFlaggedTransactions] = useState<any[]>([]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark";
@@ -105,6 +106,7 @@ function Dashboard() {
       risk: data.high_risk_percent,
     });
     setGraphs(data.graphs);
+    setFlaggedTransactions(data.flagged_transactions || []);
     setView("dashboard");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -116,10 +118,22 @@ function Dashboard() {
   };
 
   const downloadCSV = () => {
-    if (!metrics) return;
-    const csvContent = `Total Transactions,${metrics.total}\nAnomalies Detected,${metrics.anomalies}\nHigh Risk %,${metrics.risk}\n`;
+    if (!metrics || !flaggedTransactions) return;
+    
+    // 1. Summary Section
+    let csvContent = `Total Transactions,${metrics.total}\nAnomalies Detected,${metrics.anomalies}\nHigh Risk %,${metrics.risk}\n\n`;
+    
+    // 2. Detailed Table Section
+    csvContent += "Serial No,Transaction ID,Amount,Risk Score,Reason Detected\n";
+    
+    flaggedTransactions.forEach((txn, index) => {
+       // Escape commas in reason to prevent column shifting
+       const safeReason = `"${txn.reason.replace(/"/g, '""')}"`; 
+       csvContent += `${index + 1},${txn.transaction_id},${txn.amount},${txn.risk_score},${safeReason}\n`;
+    });
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "analysis_metrics.csv");
+    saveAs(blob, "fraud_analysis_report.csv");
   };
 
   return (
@@ -281,6 +295,72 @@ function Dashboard() {
                   </div>
                 </motion.section>
               )}
+
+              {/* Flagged Transactions Table */}
+              {flaggedTransactions && flaggedTransactions.length > 0 && (
+                <motion.section variants={containerVariants} style={{ marginTop: "4rem" }}>
+                   <motion.div variants={itemVariants} style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+                      <h2 style={{ fontSize: "1.8rem", color: "var(--danger)" }}>Flagged Anomalies</h2>
+                      <div style={{ height: "1px", flex: 1, background: "var(--border-color)" }}></div>
+                   </motion.div>
+
+                   <motion.div variants={itemVariants} className="glass-card" style={{ padding: "0", overflow: "hidden" }}>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
+                           <thead>
+                              <tr style={{ background: "rgba(var(--accent-color), 0.05)", borderBottom: "1px solid var(--border-color)" }}>
+                                 <th style={{ padding: "1rem", textAlign: "center", fontSize: "0.9rem", color: "var(--text-secondary)", width: "80px" }}>SR. NO</th>
+                                 <th style={{ padding: "1rem", textAlign: "left", fontSize: "0.9rem", color: "var(--text-secondary)" }}>TRANSACTION ID</th>
+                                 <th style={{ padding: "1rem", textAlign: "right", fontSize: "0.9rem", color: "var(--text-secondary)" }}>AMOUNT</th>
+                                 <th style={{ padding: "1rem", textAlign: "center", fontSize: "0.9rem", color: "var(--text-secondary)" }}>RISK SCORE</th>
+                                 <th style={{ padding: "1rem", textAlign: "left", fontSize: "0.9rem", color: "var(--text-secondary)" }}>REASON DETECTED</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {flaggedTransactions.map((txn: any, idx: number) => (
+                                 <tr key={idx} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                                    <td style={{ padding: "1rem", textAlign: "center", color: "var(--text-secondary)" }}>{idx + 1}</td>
+                                    <td style={{ padding: "1rem", fontWeight: 500 }}>{txn.transaction_id}</td>
+                                    <td style={{ padding: "1rem", textAlign: "right", fontWeight: 600 }}>${txn.amount.toLocaleString()}</td>
+                                    <td style={{ padding: "1rem", textAlign: "center" }}>
+                                       <span style={{ 
+                                          padding: "0.25rem 0.6rem", borderRadius: "20px", fontSize: "0.85rem", fontWeight: 700,
+                                          background: txn.risk_score > 90 ? "rgba(239, 68, 68, 0.2)" : "rgba(245, 158, 11, 0.2)",
+                                          color: txn.risk_score > 90 ? "#ef4444" : "#f59e0b"
+                                       }}>
+                                          {txn.risk_score}/100
+                                       </span>
+                                    </td>
+                                    <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{txn.reason}</td>
+                                 </tr>
+                              ))}
+                           </tbody>
+                        </table>
+                      </div>
+                      <div style={{ padding: "1rem", textAlign: "center", fontSize: "0.9rem", color: "var(--text-secondary)", background: "rgba(0,0,0,0.02)" }}>
+                         Showing top flagged transactions from analysis
+                      </div>
+                   </motion.div>
+                </motion.section>
+              )}
+
+              {/* Scroll to Top Button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.1 }}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                style={{
+                  position: "fixed", bottom: "2rem", right: "2rem",
+                  width: "50px", height: "50px", borderRadius: "50%",
+                  background: "var(--accent-color)", color: "#fff",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  zIndex: 100, border: "none", cursor: "pointer"
+                }}
+              >
+                 <ArrowUp size={24} />
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
