@@ -39,6 +39,15 @@ A professional-grade financial anomaly detection system featuring a premium "Fin
 - **Dual-Theme Graph Generation**: Automatically generates two sets of charts (Light & Dark) for every analysis to ensure perfect visual integration with the frontend.
 - **Crash-Proof**: Configured with `matplotlib` non-interactive backend (`Agg`) to run reliably on headless servers.
 
+### 🤖 ML Model Architecture
+The core detection engine (`backend/model/anomaly_model.py`) uses an advanced **Unsupervised Ensemble** approach:
+1.  **Algorithms**: Combines **Isolation Forest** (Density-based), **DBSCAN** (Clustering), and **Elliptic Envelope** (Statistical) for robust anomaly validation.
+2.  **Feature Engineering**: Automatically extracts over **100+ behavioral features** including:
+    - *Velocity*: Transactions per minute/hour.
+    - *Geography*: Impossible travel speed, new IP addresses.
+    - *User Patterns*: Deviations from personal spending habits (Z-Scores).
+3.  **Explainability**: Every flagged transaction includes a specific "Reason" (e.g., *"Large location change > 500km"*) so users understand **why** it was flagged.
+
 ---
 
 ## ✨ Quick Start
