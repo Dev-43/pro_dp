@@ -32,12 +32,13 @@ const UploadCSV = ({ onResult }: Props) => {
 
     if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
       setError("Only CSV files are allowed.");
-      return;
+        return;
     }
 
     setFileName(file.name);
     setError("");
     setLoading(true);
+
 
     try {
       const data = await uploadCSV(file);
