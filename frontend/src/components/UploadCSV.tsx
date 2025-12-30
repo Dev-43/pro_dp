@@ -91,7 +91,7 @@ const UploadCSV = ({ onResult }: Props) => {
                style={{ flexDirection: "column", gap: "1rem" }}
              >
                 <Loader2 size={48} className="animate-spin" color="var(--accent-color)" />
-                <p style={{ color: "var(--text-secondary)" }}>Analyzing thousands of transactions...</p>
+                <p style={{ color: "var(--text-secondary)" }}>Analyzing the transactions...</p>
              </motion.div>
           ) : fileName && !error ? (
              <motion.div
